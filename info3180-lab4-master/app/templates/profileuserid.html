@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div id = "holder">
+
+
+
+ <br>  <h2>{{fn}} </h2>
+</div>
+<div id = "Bio">
+<div id = "buttons">
+<a href="{{url_for('index')}}" class="btn btn-primary btn-block">Profiles</a>
+<a href="{{url_for('index')}}" class="btn btn-primary btn-block">Create Post</a>
+<button type = "button" id = "Send">Friends </button> 
+<button type = "button" id = "Send">Send Message</button> 
+
+</div>
+
+
+
+</div>
+
+{% endblock %}
