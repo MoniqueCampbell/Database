@@ -3,21 +3,31 @@
 {% block main %}
 <div id = "holder">
 
+<h1>PROFILE</h1>
+
+ <br>  <br><h2>{{firstname}} {{lastname}} <br>Email Address: {{email}}</h2>
 
 
- <br>  <h2>{{fn}} </h2>
+
+
+
+{%for i in [dire]%}
+	<img src="{{url_for('static',filename="" + i) }}"/>
+{%endfor%} 
+
 </div>
 <div id = "Bio">
 <div id = "buttons">
+
 <a href="{{url_for('index')}}" class="btn btn-primary btn-block">Profiles</a>
-<a href="{{url_for('index')}}" class="btn btn-primary btn-block">Create Post</a>
-<button type = "button" id = "Send">Friends </button> 
-<button type = "button" id = "Send">Send Message</button> 
-
+<a href="{{url_for('upp',userid=userid)}}" class="btn btn-primary btn-block">Update Profile Picture</a>
+<a href="{{url_for('cpost',userid=userid)}}" class="btn btn-primary btn-block">Create Post</a>
+<a href="{{url_for('vpost',userid=userid)}}" class="btn btn-primary btn-block">View Post(s)</a>
+<a href="{{url_for('aboutuserid',userid=userid)}}" class="btn btn-primary btn-block">View About</a>
+<a href="{{url_for('modaboutuserid',userid=userid)}}" class="btn btn-primary btn-block">Modify About</a>
+<button type = "button" id = "Send">Friends </button>  
+    </script>
 </div>
-
-
-
 </div>
 
 {% endblock %}

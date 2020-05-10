@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import TextAreaField, TextField, SelectField
-from wtforms.validators import DataRequired, Email
-from wtforms import StringField, PasswordField
-from wtforms.validators import InputRequired
+from wtforms import TextAreaField, TextField, SelectField, StringField, PasswordField, HiddenField
+from wtforms.validators import DataRequired, Email, InputRequired, Required
+from wtforms.fields.html5 import DateField
 
 class RegForm(FlaskForm):
     firstname = TextField('First Name:', validators = [DataRequired()])
@@ -20,4 +19,24 @@ class RegForm(FlaskForm):
 class LoginForm(FlaskForm):
     e_mail = StringField('Email:', validators=[InputRequired()])
     password = PasswordField('Password:', validators=[InputRequired()])
-   
+
+gen = [('Female', 'Female'), ('Male', 'Male')]
+class ModAboutForm(FlaskForm):
+    dob = DateField('Date of Birth:', format='%Y-%m-%d')
+    gender = SelectField('Gender', choices=gen)
+    nickname = TextField('Nickname:', validators=[InputRequired()])
+
+class AdminForm(FlaskForm):
+    username = StringField('Username:', validators=[InputRequired()])
+    password = PasswordField('Password:', validators=[InputRequired()])
+
+class CPostForm(FlaskForm):
+    description = TextAreaField('Description:', validators=[InputRequired()])
+    photo = FileField('Photo', validators=[FileRequired(),FileAllowed(['jpg', 'png', 'Images only!'])])
+
+class UppForm(FlaskForm):
+    photo = FileField('Photo', validators=[FileRequired(),FileAllowed(['jpg', 'png', 'Images only!'])])
+
+class Addcom_PostForm(FlaskForm):
+    usr_text = StringField('', validators=[InputRequired()])
+    pi_d = HiddenField('', validators=[InputRequired()])
