@@ -1,0 +1,22 @@
+{% extends "base.html"%}
+
+{% block main %} 
+<h1 class="page-header">Friend Search</h1>
+{% include 'flash_messages.html' %}
+<h2>Enter a Name below</h2>
+<div id = "container">
+<form action="{{ url_for('profile') }}" method="post" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.Search.label}} {{ form.Search(class="form-control") }}
+        </div>
+<a href = "{{url_for('friends', userid = userid)}}"
+
+ <button type="submit" id="button">Search</button></a>
+   
+</form>
+
+
+
+
+{% endblock %}.

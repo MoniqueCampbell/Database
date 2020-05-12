@@ -1,0 +1,16 @@
+{% extends "base.html"%}
+
+{% block main %} 
+<h1 class="page-header">Your Groups</h1>
+{% include 'flash_messages.html' %}
+{%for group in groups%}
+<div id = "holder">
+<p>{{group.groud_name}}
+</p>
+</div>
+{%endfor%}
+
+
+
+
+{% endblock %}.

@@ -3,14 +3,14 @@
 {% block main %}
 <div id = "holder">
 
-<h1>PROFILE</h1>
+<h1 class = "page-header">PROFILE</h1>
 
 <form action="{{ url_for('profileuserid',userid=userid) }}" method="post">
 {{ form.csrf_token}}
       <div class="form-group">
         {{ form.searchbar(class='form-control', placeholder="Search for friend")}}
       </div>
-	<button type="submit" name="submit" class="btn btn-primary btn-block">Search</button>
+	<button type="submit" name="submit">Search</button>
 	</form>
 
 
@@ -24,14 +24,14 @@
 <div id = "Bio">
 <div id = "buttons">
 
-<a href="{{url_for('index')}}" class="btn btn-primary btn-block">Profiles</a>
-<a href="{{url_for('upp',userid=userid)}}" class="btn btn-primary btn-block">Update Profile Picture</a>
-<a href="{{url_for('cpost',userid=userid)}}" class="btn btn-primary btn-block">Create Post</a>
-<a href="{{url_for('vpost',userid=userid)}}" class="btn btn-primary btn-block">View Post(s)</a>
-<a href="{{url_for('aboutuserid',userid=userid)}}" class="btn btn-primary btn-block">View About</a>
-<a href="{{url_for('modaboutuserid',userid=userid)}}" class="btn btn-primary btn-block">Modify About</a>
-<a href="{{url_for('vfriend',userid=userid)}}" class="btn btn-primary btn-block">View Friends</a>
-<a href="{{url_for('groups',userid=userid)}}" class="btn btn-primary btn-block">Groups</a>
+<a href="{{url_for('index')}}" class="btn">Profiles</a>
+<a href="{{url_for('upp',userid=userid)}}" class="btn1">Update Profile Picture</a>
+<a href="{{url_for('cpost',userid=userid)}}" class="btn2">Create Post</a>
+<a href="{{url_for('vpost',userid=userid)}}" class="btn3">View Post(s)</a>
+<a href="{{url_for('aboutuserid',userid=userid)}}" class="btn4">View About</a>
+<a href="{{url_for('modaboutuserid',userid=userid)}}" class="btn5">Modify About</a>
+<a href="{{url_for('vfriend',userid=userid)}}" class="btn6">View Friends</a>
+<a href="{{url_for('groups',userid=userid)}}" class="btn7">Groups</a>
     </script>
 </div>
 </div>

@@ -1,0 +1,20 @@
+{% extends "base.html"%}
+
+{% block main %} 
+<h1 class="page-header">Results Found</h1>
+{% include 'flash_messages.html' %}
+{%for profile in profiles%}
+<div id = "holder">
+<p>
+<b>{{profile.firstname}} {{profile.lastname}}</b> <br> {{profile.email}} <br></p>
+<a href = "{{url_for('friendslist', id = userid )}}"
+
+<button type="submit" id = "View">Add as a Friend</button></a>
+<br><br><br>
+</div>
+{%endfor%}
+
+
+
+
+{% endblock %}.

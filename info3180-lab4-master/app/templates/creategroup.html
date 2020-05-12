@@ -1,0 +1,18 @@
+{% extends "base.html"%}
+
+{% block main %} 
+<h1 class="page-header">Create a Group</h1>
+
+{% include 'flash_messages.html' %}
+<div id = "container">
+<form action="{{ url_for('creategroup') }}" method="post" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.Name.label}} {{ form.Name(class="form-control") }}
+        </div>
+
+    <button type="submit" id="button">Create Group</button>
+</form>
+</div> 
+
+{% endblock %}.

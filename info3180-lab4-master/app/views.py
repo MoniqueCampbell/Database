@@ -11,25 +11,25 @@ from flask import render_template, request, redirect, url_for, flash, session, a
 from werkzeug.utils import secure_filename
 from .forms import RegForm, LoginForm, ModAboutForm, gen, AdminForm, CPostForm, UppForm, Addcom_PostForm, SearchForm, AddFriendForm, CGroupForm, GroupForm
 from werkzeug.security import generate_password_hash, check_password_hash
-import re
-import pymsgbox
+#import re
+#import pymsgbox
 
 import datetime
 import time
 from wtforms.fields.html5 import DateField
 from datetime import datetime
 
-from flask_mysqldb import MySQL
-from app import app
-import ctypes
+#from flask_mysqldb import MySQL
+#from app import app
+#import ctypes
 
 # Configure db
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Monique5!'
-app.config['MYSQL_DB'] = 'socialmedia'
+#app.config['MYSQL_HOST'] = 'localhost'
+#app.config['MYSQL_USER'] = 'root'
+#app.config['MYSQL_PASSWORD'] = 'Monique5!'
+#app.config['MYSQL_DB'] = 'socialmedia'
 
-mysql = MySQL(app)
+#mysql = MySQL(app)
 
 @app.route('/')
 def index():

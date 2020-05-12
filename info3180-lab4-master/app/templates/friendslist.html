@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+
+{% block main %} 
+<h1 class="page-header">Your Friends</h1>
+{% include 'flash_messages.html' %}
+{%for profile in profiles%}
+<div id = "holder">
+<p>
+<b>{{profile.firstname}} {{profile.lastname}}</b></p>
+<br><br><br>
+</div>
+{%endfor%}
+
+
+
+
+{% endblock %}.
