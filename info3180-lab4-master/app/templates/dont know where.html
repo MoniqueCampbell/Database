@@ -13,3 +13,15 @@
     </form>
   </div>
 {% endblock %}
+
+
+<form action="{{ url_for('addfriend',userid=userid) }}" method="post">
+    {{ form.csrf_token}}
+      <div class="form-group">
+        {{ form.f_id(class='form-control',value=i[0])}}
+      </div>
+    <button type="submit" name="submit" class="btn btn-primary btn-block">Add Comment</button>
+  
+  </form>
+</div>
+</div>

@@ -161,3 +161,73 @@ create table Commented(
 	foreign key(post_id)
 	references Post(post_id) on delete cascade on update cascade
 );
+
+
+create table Group1(
+	group_id integer NOT NULL AUTO_INCREMENT, 
+	group_name varchar(50),
+
+	primary key(group_id)
+);
+
+create table friends_with(
+	user_id integer NOT NULL,
+	friend_id integer NOT NULL,
+	group_id integer NOT NULL,
+
+	primary key(user_id,friend_id),
+
+	foreign key(user_id)
+	references User(user_id) on delete cascade on update cascade,
+	
+	foreign key(group_id)
+	references Group1(group_id) on delete cascade on update cascade
+);
+
+create table creates(
+	editor_id integer NOT NULL,
+	group_id integer NOT NULL,
+	user_id integer NOT NULL,
+	create_date date,
+
+	primary key(editor_id, group_id),
+
+	foreign key(group_id)
+	references Group1(group_id) on delete cascade on update cascade,
+
+	foreign key(user_id)
+	references User(user_id) on delete cascade on update cascade
+);
+
+
+create table joins(
+	user_id integer NOT NULL,
+	group_id integer NOT NULL,
+	join_date date,
+
+	primary key(user_id, group_id),
+
+	foreign key(group_id)
+	references Group1(group_id) on delete cascade on update cascade,
+
+	foreign key(user_id)
+	references User(user_id) on delete cascade on update cascade
+
+);
+
+create table belongs(
+	post_id integer NOT NULL,
+	group_id integer NOT NULL,
+
+	primary key(post_id,group_id),
+
+	foreign key(post_id)
+	references Post(post_id) on delete cascade on update cascade,
+
+	foreign key(group_id)
+	references Group1(group_id) on delete cascade on update cascade
+);
+
+INSERT INTO Group1(group_id,group_name) VALUES(1,"Relatives");
+INSERT INTO Group1(group_id,group_name) VALUES(2,"School");
+INSERT INTO Group1(group_id,group_name) VALUES(3,"Work");

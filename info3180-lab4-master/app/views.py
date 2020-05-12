@@ -9,7 +9,7 @@ import os
 from app import app
 from flask import render_template, request, redirect, url_for, flash, session, abort
 from werkzeug.utils import secure_filename
-from .forms import RegForm, LoginForm, ModAboutForm, gen, AdminForm, CPostForm, UppForm, Addcom_PostForm
+from .forms import RegForm, LoginForm, ModAboutForm, gen, AdminForm, CPostForm, UppForm, Addcom_PostForm, SearchForm, AddFriendForm, CGroupForm, GroupForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 import pymsgbox
@@ -153,44 +153,197 @@ def login():
             flash('Invalid Info', 'success')
             return render_template('login.html', form = form)
 
-@app.route('/profileuserid/<int:userid>')
+@app.route('/profileuserid/<int:userid>', methods=['GET', 'POST'])
 def profileuserid(userid):
-    cur = mysql.connection.cursor()
-    #Search db for firstname
-    cur.execute("SELECT firstname FROM User WHERE user_id='{}'".format(userid))
-    result=cur.fetchall()
-    firstname = result[0][0]
 
-    #Search db for lastname
-    cur.execute("SELECT lastname FROM User WHERE user_id='{}'".format(userid))
-    result=cur.fetchall()
-    lastname = result[0][0]
+    if request.method == 'GET':
+        
+        cur = mysql.connection.cursor()
+        #Search db for firstname
+        cur.execute("SELECT firstname FROM User WHERE user_id='{}'".format(userid))
+        result=cur.fetchall()
+        firstname = result[0][0]
 
-    #Search db for email
-    cur.execute("SELECT email FROM User WHERE user_id='{}'".format(userid))
-    result=cur.fetchall()
-    email = result[0][0]
+        #Search db for lastname
+        cur.execute("SELECT lastname FROM User WHERE user_id='{}'".format(userid))
+        result=cur.fetchall()
+        lastname = result[0][0]
 
-    cur.execute("SELECT profile_id FROM Profile WHERE user_id='{}'".format(userid))
-    result=cur.fetchall()
+        #Search db for email
+        cur.execute("SELECT email FROM User WHERE user_id='{}'".format(userid))
+        result=cur.fetchall()
+        email = result[0][0]
 
-    dire=""
-    if len(result)>0:
-        profile1id = result[0][0]
-
-        cur.execute("SELECT image_id FROM Profile_pic WHERE profile_id='{}'".format(profile1id))
+        cur.execute("SELECT profile_id FROM Profile WHERE user_id='{}'".format(userid))
         result=cur.fetchall()
 
+        dire=""
         if len(result)>0:
-            image1id = result[0][0]
+            profile1id = result[0][0]
 
-            cur.execute("SELECT directory FROM Image WHERE image_id='{}'".format(image1id))
+            cur.execute("SELECT image_id FROM Profile_pic WHERE profile_id='{}'".format(profile1id))
+            result=cur.fetchall()
+
             if len(result)>0:
-                result=cur.fetchall()
-                dire = result[0][0]
+                image1id = result[0][0]
 
-    return render_template('profileuserid.html',userid=userid,firstname=firstname,lastname=lastname,email=email,dire=dire)
+                cur.execute("SELECT directory FROM Image WHERE image_id='{}'".format(image1id))
+                if len(result)>0:
+                    result=cur.fetchall()
+                    dire = result[0][0]
+
+        form = SearchForm()
+
+        return render_template('profileuserid.html',userid=userid,firstname=firstname,lastname=lastname,email=email,dire=dire, form=form)
+
+    form = SearchForm()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        searchbar = request.form['searchbar']
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT user_id,firstname,lastname FROM User WHERE firstname LIKE '%{}%' OR lastname LIKE '%{}%'".format(searchbar, searchbar))
+        result=cur.fetchall()
+
+        profiles = []
+        for r in result:
+            uid, first, last = r
+            cur.execute("SELECT directory FROM Image where image_id in (SELECT image_id FROM Profile_pic where profile_id in (SELECT profile_id FROM Profile where user_id = {}))".format(uid))
+            p = cur.fetchall()
+            photo = ""
+            if len(p)>0:
+                photo = p[0][0]
+            if userid != uid:
+                profiles.append((uid, first, last, photo))
+        profiles.sort(key=lambda x:x[2])
+        profiles.sort(key=lambda x:x[1])
+
+        mysql.connection.commit()
+        form = AddFriendForm()
+        return render_template('sfriend.html',form=form,userid=userid,fren_info=profiles)
+    return redirect(url_for('profileuserid', userid = userid))  
+
+
+@app.route('/addfriend/<int:userid>',methods=['GET', 'POST'])                
+def addfriend(userid):
+    if request.method =='POST':
+        f_id = request.form.get('Encrypt')
+
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO friends_with(user_id, friend_id, group_id) VALUES (%s ,%s, %s)", (userid, f_id,1))
+        mysql.connection.commit()
+        return redirect(url_for('profileuserid', userid = userid))  
+
+    elif request.method =='GET':
+        print(" ")
+    return redirect(url_for('profileuserid', userid = userid)) 
+
+
+@app.route('/vfriend/<int:userid>')               
+def vfriend(userid):
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT friend_id FROM friends_with WHERE user_id='{}'".format(userid))
+    fren_ids=cur.fetchall()
+
+    info = []
+    for fren in fren_ids:
+        
+        userid=fren[0]
+        cur.execute("SELECT directory FROM Image WHERE image_id in (Select image_id FROM profile_pic WHERE  profile_id in (SELECT profile_id FROM Profile WHERE user_id={}))".format(userid))
+        images = cur.fetchall()
+        pic = images[0][0]
+
+        cur.execute("SELECT user_id,firstname,lastname FROM User WHERE user_id = {}".format(userid))
+        fren_info = cur.fetchall()
+        uid,first,last = fren_info[0]
+        info.append((uid,first, last, pic))
+        mysql.connection.commit()
+    
+    info.sort(key=lambda x:x[2])
+    info.sort(key=lambda x:x[1])
+    return render_template('vfriend.html',fren_stuff=info,userid=userid)
  
+@app.route('/groups/<int:userid>', methods=['GET', 'POST'])
+def groups(userid): 
+    if request.method == 'GET':
+        form = GroupForm() 
+        return render_template('groups.html',form=form,userid=userid) 
+    form = GroupForm() 
+    if request.method == 'POST':
+        cur = mysql.connection.cursor()
+        group_search = request.form['groupsearch']
+        cur.execute("SELECT group_id,group_name FROM Group1 WHERE group_name LIKE '%{}%'".format(group_search))
+        gr_result=cur.fetchall()
+
+        info=[]
+        for g in gr_result:
+            gid,gname = g
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT user_id,create_date FROM creates WHERE group_id={}".format(gid))
+            gr_result=cur.fetchall()
+            gr_info=gr_result[0]
+            uid,cdate=gr_info
+
+            cur.execute("SELECT firstname,lastname FROM User WHERE user_id={}".format(uid))
+            u_result=cur.fetchall()
+            fname,lname=u_result[0]
+
+            if gid not in [1,2,3]:
+                info.append((gid,gname,fname,lname,cdate))
+
+        mysql.connection.commit()
+
+        info.sort(key=lambda x:x[1])
+        return render_template('sgroup.html',userid=userid,info=info,form=form)
+    return redirect(url_for('groups',userid=udserid))   
+
+@app.route('/joingroup/<int:userid>',methods=['GET', 'POST'])                
+def joingroup(userid):
+    if request.method =='POST':
+        g_id = request.form.get('Encrypt')
+        joindate = datetime.today().strftime('%Y-%m-%d')
+
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO joins(user_id, group_id, join_date) VALUES (%s ,%s, %s)", (userid, g_id,joindate))
+        mysql.connection.commit()
+        return redirect(url_for('groups', userid = userid))  
+
+    elif request.method =='GET':
+        print(" ")
+    return redirect(url_for('groups', userid = userid)) 
+
+@app.route('/cgroup/<int:userid>', methods=['GET', 'POST'])
+def cgroup(userid):
+    if request.method == 'GET':
+        form = CGroupForm()
+        return render_template('cgroup.html', form = form,userid=userid)
+
+    form = CGroupForm()
+    if request.method == 'POST':
+        g_roupname = request.form['groupname']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO Group1(group_name) VALUES (%s)", (g_roupname))
+        cur.execute("SELECT group_id FROM Group1 WHERE user_id='{}'".format(userid))
+        g_result=cur.fetchall()
+        g_id=result[0]
+        c_d=  datetime.today().strftime('%Y-%m-%d')
+
+        cur.execute("INSERT INTO creates(editor_id,group_id,user_id,create_date) VALUES (%s,%s,%s,%s)", (userid,g_id,userid,c_d))
+        
+        mysql.connection.commit()
+        flash('Group successfully created!','success')
+        return redirect(url_for('profileuserid', userid = userid))
+    return redirect(url_for('index'))
+
+@app.route('/vgroups/<int:userid>', methods=['GET', 'POST'])
+def vgroups(userid):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT country FROM Address WHERE user_id='{}'".format(userid))
+    mysql.connection.commit()
+    return render_template('vgroups.html', userid = userid)
+    return redirect(url_for('groups', userid = userid))
+
+
 @app.route('/aboutuserid/<int:userid>')
 def aboutuserid(userid):
     cur = mysql.connection.cursor()
@@ -398,21 +551,33 @@ def upp(userid):
         return redirect(url_for('profileuserid', userid = userid))
     return render_template('upp.html', form = form, userid=userid)
 
-# @app.route('/addcom_post/<int:userid>', methods=['GET', 'POST'])
-# def addcom_post():
-#     if request.method == 'GET':
-#         form = CPostForm()
-#         return render_template('cpost.html', form = form)
+@app.route('/addcom_post/<int:userid>', methods=['GET', 'POST'])
+def addcom_post():
+    if request.method == 'GET':
+        form = CPostForm()
+        return render_template('cpost.html', form = form)
 
-#     form = CPostForm()
-#     if request.method == 'POST' and form.validate_on_submit():
-#         user_name = request.form['username']
-#         pass_word = request.form['password']
+    form = CPostForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        cur = mysql.connection.cursor()
+        us_rtext = request.form['usr_text']
+        p_id = request.form['pi_d']
+        comdate = datetime.today().strftime('%Y-%m-%d')
+        comtime = datetime.now().strftime("%H:%M:%S")
+
+        #cur.execute("INSERT INTO Comment(post_id,usr_text,com_date,com_time) VALUES (%s,%s,%s,%s)", (p_id,us_rtext,comdate,comtime)) 
+        cur.execute("INSERT INTO Comment(post_id,usr_text,com_date,com_time) VALUES ({},'{}','{}','{}')".format(p_id,us_rtext,comdate,comtime))
+        #print("INSERT INTO Comment(post_id,usr_text,com_date,com_time) VALUES ({},'{}','{}','{}')".format(p_id,us_rtext,comdate,comtime))
+        mysql.connection.commit()
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT com_id FROM Comment WHERE com_date='{}' AND com_time='{}' AND usr_text='{}'".format(comdate,comtime,us_rtext))
+        co_result=cur.fetchall()
+        comid = co_result[0][0]
+        cur.execute("INSERT INTO Commented(user_id,com_id,post_id) VALUES (%s,%s,%s)", (userid,comid,p_id)) 
+        mysql.connection.commit()
         
-#         return redirect(url_for('profileuserid', userid = userid))
-#     return redirect(url_for('addcom_post', userid = userid))
-
-
+        return redirect(url_for('profileuserid', userid = userid))
+    return redirect(url_for('addcom_post', userid = userid))
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
